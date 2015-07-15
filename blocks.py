@@ -1,4 +1,5 @@
 import functools
+import itertools
 
 
 class BlockException(Exception):
@@ -109,7 +110,12 @@ class Block(object):
     def drop(self):
         """Drop the block directly downwards to the bottom of the field.
         This is the block's final position and it cannot be moved further"""
-        # TODO: Drop
+        self._remove()
+        x, y = self.position
+        for i in itertools.count():
+            if not self._can_place(x, y + i):
+                self.position = x, y + i - 1
+                break
         self._movable = False
         return self
 

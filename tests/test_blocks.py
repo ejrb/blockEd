@@ -1,12 +1,14 @@
 import logging
 import pytest
-from blocks import rotate_cw, rotate_ccw, OBlock, InvalidBlockPosition, IBlock
+from blocks import rotate_cw, rotate_ccw, OBlock, InvalidBlockPosition, IBlock, \
+    CannotMoveBlock
 from field import Field
 
 log = logging.getLogger(__name__)
 
 
 def test_matrix_rotation():
+    """used to rotate blocks"""
     s = ((1, 2, 3),
          (4, 5, 6))
     tr, tl = rotate_cw, rotate_ccw
@@ -30,6 +32,7 @@ def test_o_block():
 
 
 def test_invalid_block_placement():
+    """cannot place blocks on top of each other or outside field bounds"""
     field = Field(6, 4)
     block1, block2 = OBlock(field), OBlock(field)
 
@@ -62,6 +65,7 @@ def test_i_block():
 
 
 def test_invalid_rotations():
+    """cannot rotate blocks if they will collide with another"""
     field = Field(6, 4)
     # Vertical I blocks placed next to each other
     block1, block2 = IBlock(field).rotate_cw(), IBlock(field).rotate_cw()
@@ -79,3 +83,27 @@ def test_invalid_rotations():
         with pytest.raises(InvalidBlockPosition):
             block.rotate_cw()
         assert str(field) == exp_field
+
+
+def test_drop():
+    """blocks can be dropped downwards to their final position"""
+    field = Field(6, 4)
+    oblock, iblock = OBlock(field), IBlock(field)
+
+    # Drop O into bottom right corner
+    oblock.position = 0, 0
+    oblock.drop()
+
+    assert str(field) == '0,0,0,0;0,0,0,0;0,0,0,0;0,0,0,0;1,1,0,0;1,1,0,0'
+
+    # Drop I on top of O
+    iblock.position = 0, -1
+    iblock.drop()
+
+    assert str(field) == '0,0,0,0;0,0,0,0;0,0,0,0;1,1,1,1;1,1,0,0;1,1,0,0'
+
+    with pytest.raises(CannotMoveBlock):
+        oblock.position = 0, 0
+
+    with pytest.raises(CannotMoveBlock):
+        oblock.rotate_ccw()
