@@ -1,9 +1,12 @@
-class OutOfBoundsElem(object):
+class _OutOfBoundsElem(object):
+    """Can be retrieved but not assigned to"""
     def __getitem__(self, _):
         return None
 
     def __setitem__(self, key, value):
         raise IndexError('Cannot place block outside bounds')
+
+OutOfBoundsElem = _OutOfBoundsElem()
 
 
 class Row(object):
@@ -19,7 +22,8 @@ class Row(object):
                 raise IndexError
             return self._row[item]
         except IndexError:
-            return OutOfBoundsElem()
+            # Blocks cannot exist beyond the horizontal bounds of the field
+            return OutOfBoundsElem
 
     def __setitem__(self, key, value):
         self._row[key] = value
@@ -31,10 +35,11 @@ class Row(object):
 class OutOfBoundsBottomRow(Row):
     """All elements are out of bounds"""
     def __getitem__(self, item):
-        return OutOfBoundsElem()
+        return OutOfBoundsElem
 
 
-OutOfBoundsTopRow = Row
+class OutOfBoundsTopRow(Row):
+    """Blocks can be placed in the area above the field without breaking"""
 
 
 class Field(object):
@@ -46,11 +51,8 @@ class Field(object):
         return ';'.join(map(str, self._field))
 
     def __getitem__(self, item):
-        try:
-            if item < 0:
-                return OutOfBoundsTopRow(self.w)
-            if item >= self.h:
-                return OutOfBoundsBottomRow(self.w)
-            return self._field[item]
-        except (IndexError, TypeError):
-            return [None] * self.w
+        if item < 0:
+            return OutOfBoundsTopRow(self.w)
+        if item >= self.h:
+            return OutOfBoundsBottomRow(self.w)
+        return self._field[item]
