@@ -88,22 +88,28 @@ def test_invalid_rotations():
 def test_drop():
     """blocks can be dropped downwards to their final position"""
     field = Field(6, 4)
-    oblock, iblock = OBlock(field), IBlock(field)
+    oblock1, oblock2, iblock = OBlock(field), OBlock(field), IBlock(field)
 
-    # Drop O into bottom right corner
-    oblock.position = 0, 0
-    oblock.drop()
-
+    # Drop first O into bottom right corner
+    oblock1.position = 0, 0
+    oblock1.drop()
     assert str(field) == '0,0,0,0;0,0,0,0;0,0,0,0;0,0,0,0;1,1,0,0;1,1,0,0'
+
+    # Move second O next to it and drop it (stays in place)
+    oblock2.position = 2, 4
+    exp_str = '0,0,0,0;0,0,0,0;0,0,0,0;0,0,0,0;1,1,1,1;1,1,1,1'
+    assert str(field) == exp_str
+    oblock2.drop()
+    assert str(field) == exp_str
 
     # Drop I on top of O
     iblock.position = 0, -1
     iblock.drop()
 
-    assert str(field) == '0,0,0,0;0,0,0,0;0,0,0,0;1,1,1,1;1,1,0,0;1,1,0,0'
+    assert str(field) == '0,0,0,0;0,0,0,0;0,0,0,0;1,1,1,1;1,1,1,1;1,1,1,1'
 
     with pytest.raises(CannotMoveBlock):
-        oblock.position = 0, 0
+        oblock1.position = 0, 0
 
     with pytest.raises(CannotMoveBlock):
-        oblock.rotate_ccw()
+        oblock1.rotate_ccw()
