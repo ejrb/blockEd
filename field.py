@@ -31,6 +31,9 @@ class Row(object):
     def __str__(self):
         return ','.join(map(str, self._row))
 
+    def is_complete(self):
+        return all(self._row)
+
 
 class OutOfBoundsBottomRow(Row):
     """All elements are out of bounds"""
@@ -56,3 +59,25 @@ class Field(object):
         if item >= self.h:
             return OutOfBoundsBottomRow(self.w)
         return self._field[item]
+
+    def update(self):
+        to_remove = [
+            i for i, row in enumerate(self._field) if row.is_complete()
+        ]
+
+        for i in reversed(to_remove):
+            del self._field[i]
+
+        for _ in to_remove:
+            self._field.insert(0, Row(self.w))
+
+        return len(to_remove)
+
+    @classmethod
+    def from_str(cls, s):
+        array = [map(int, r.split(',')) for r in s.split(';')]
+        field = cls(len(array), len(array[0]))
+        for j, row in enumerate(array):
+            for i, v in enumerate(row):
+                field[j][i] = v
+        return field
