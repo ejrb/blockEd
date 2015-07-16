@@ -3,7 +3,7 @@ from collections import OrderedDict
 
 from engine import SettingsReporter, UpdateReporter, Engine
 from blocks import OBlock, IBlock
-from field import Field
+from blocked.field import Field
 
 _test_settings = OrderedDict([
     ('time_bank', 1),

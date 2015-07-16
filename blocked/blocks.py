@@ -1,17 +1,7 @@
 import functools
 import itertools
 
-
-class BlockException(Exception):
-    """block problems"""
-
-
-class InvalidBlockPosition(BlockException):
-    """cannot place block"""
-
-
-class CannotMoveBlock(BlockException):
-    """cannot move block"""
+from .exceptions import InvalidBlockPosition, CannotMoveBlock
 
 
 def movement(meth):
