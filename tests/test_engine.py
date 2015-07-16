@@ -1,8 +1,8 @@
 from cStringIO import StringIO
 from collections import OrderedDict
 
-from engine import SettingsReporter, UpdateReporter, Engine
-from blocks import OBlock, IBlock
+from blocked.engine import SettingsReporter, UpdateReporter, Engine
+from blocked.blocks import OBlock, IBlock
 from blocked.field import Field
 
 _test_settings = OrderedDict([

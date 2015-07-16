@@ -1,10 +1,7 @@
 import logging
-from exceptions import InvalidBlockPosition, CannotMoveBlock
-
 import pytest
-
-from blocks import rotate_cw, rotate_ccw, OBlock, IBlock, \
-    CannotMoveBlock
+from blocked.blocks import rotate_cw, rotate_ccw, OBlock, IBlock
+from blocked.exceptions import InvalidBlockPosition, CannotMoveBlock
 from blocked.field import Field
 
 log = logging.getLogger(__name__)
