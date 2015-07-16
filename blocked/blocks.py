@@ -1,7 +1,8 @@
 import functools
 import itertools
 
-from .exceptions import InvalidBlockPosition, CannotMoveBlock
+from .exceptions import InvalidBlockPosition, CannotMoveBlock, GameOver, \
+    InvalidBlockRotation
 
 
 def movement(meth):
@@ -17,11 +18,12 @@ def movement(meth):
 class Block(object):
     type = ''
     shape = ()
+    _position = (None, None)
 
-    def __init__(self, field):
+    def __init__(self, field, starting_position=(0, -4)):
         self._field = field
-        self._position = None, None
         self._movable = True
+        self.position = starting_position
 
     def __str__(self):
         return self.type
@@ -34,7 +36,7 @@ class Block(object):
 
     def _can_place(self, x, y):
         for i, j in self._iter_location(x, y):
-            if self._field[j][i]:
+            if self._field[j][i] > 1:
                 return False
         return True
 
@@ -50,8 +52,10 @@ class Block(object):
         if x is not None and y is not None:
             self._update_field(x, y, 0)
 
-    def _is_floating(self):
-        return self._position == (None, None)
+    def _stick(self):
+        x, y = self._position
+        self._update_field(x, y, 2)
+        self._movable = False
 
     @property
     def movable(self):
@@ -60,9 +64,9 @@ class Block(object):
     @movable.setter
     def movable(self, value):
         if value is False:
-            x, y = self._position
-            self._update_field(x, y, 2)
-            self._movable = value
+            self._stick()
+        elif not isinstance(value, bool):
+            raise TypeError('Block.movable can only be set to True or False')
 
     @property
     def position(self):
@@ -84,12 +88,11 @@ class Block(object):
     def _rotate(self, forward, back):
         self._remove()
         self.shape = forward(self.shape)
-        if not self._is_floating():
-            if not self._can_place(*self._position):
-                self.shape = back(self.shape)
-                self.position = self._position
-                raise InvalidBlockPosition('Cannot rotate block')
+        if not self._can_place(*self._position):
+            self.shape = back(self.shape)
             self.position = self._position
+            raise InvalidBlockRotation('Cannot rotate block')
+        self.position = self._position
 
     @movement
     def rotate_cw(self):

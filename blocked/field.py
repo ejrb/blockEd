@@ -54,6 +54,11 @@ class OutOfBoundsBottomRow(Row):
 class OutOfBoundsTopRow(Row):
     """Blocks can be placed in the area above the field without breaking"""
 
+    def __setitem__(self, key, value):
+        if value > 1:
+            raise GameOver('Block landing above field ended the game')
+        super(OutOfBoundsTopRow, self).__setitem__(key, value)
+
 
 class SolidRow(Row):
     def __init__(self, w):

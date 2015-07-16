@@ -11,7 +11,11 @@ class BlockException(BlockEdException):
 
 
 class InvalidBlockPosition(BlockException):
-    """cannot place block"""
+    """cannot place block here"""
+
+
+class InvalidBlockRotation(BlockException):
+    """cannot rotate block here"""
 
 
 class CannotMoveBlock(BlockException):

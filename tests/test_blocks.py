@@ -1,10 +1,9 @@
-import logging
 import pytest
-from blocked.blocks import rotate_cw, rotate_ccw, OBlock, IBlock
-from blocked.exceptions import InvalidBlockPosition, CannotMoveBlock
-from blocked.field import Field
 
-log = logging.getLogger(__name__)
+from blocked.blocks import rotate_cw, rotate_ccw, OBlock, IBlock
+from blocked.exceptions import InvalidBlockPosition, CannotMoveBlock,\
+    GameOver, InvalidBlockRotation
+from blocked.field import Field
 
 
 def test_matrix_rotation():
@@ -33,19 +32,19 @@ def test_o_block():
 
 def test_invalid_block_placement():
     """cannot place blocks on top of each other or outside field bounds"""
-    field = Field(6, 4)
-    block1, block2 = OBlock(field), OBlock(field)
+    exp_str = '0,0,0,0;0,0,0,0;0,0,0,0;0,0,0,0;2,2,0,0;2,2,0,0'
+    field = Field.from_str(exp_str)
+    block = OBlock(field)
 
     # Place outside the field
     with pytest.raises(InvalidBlockPosition):
-        block1.position = -1, 4
+        block.position = -1, 4
 
     # Overlapping blocks
-    block1.position = 0, 4
     with pytest.raises(InvalidBlockPosition):
-        block2.position = 0, 4
+        block.position = 0, 4
 
-    assert str(field) == '0,0,0,0;0,0,0,0;0,0,0,0;0,0,0,0;1,1,0,0;1,1,0,0'
+    assert str(field) == exp_str
 
 
 def test_i_block():
@@ -66,23 +65,16 @@ def test_i_block():
 
 def test_invalid_rotations():
     """cannot rotate blocks if they will collide with another"""
-    field = Field(6, 4)
+    field = Field.from_str('0,0,0,0;0,0,0,0;0,0,0,2;0,0,0,2;0,0,0,2;0,0,0,2')
     # Vertical I blocks placed next to each other
-    block1, block2 = IBlock(field).rotate_cw(), IBlock(field).rotate_cw()
-    block1.position = 1, 2
-    block2.position = 0, 2
-    exp_field = '0,0,0,0;0,0,0,0;0,0,1,1;0,0,1,1;0,0,1,1;0,0,1,1'
-    assert str(field) == exp_field
+    block = IBlock(field).rotate_cw()
+    block.position = 0, 2
+    assert str(field) == '0,0,0,0;0,0,0,0;0,0,1,2;0,0,1,2;0,0,1,2;0,0,1,2'
 
-    # Neither block able to rotate from this position
-    for block in block1, block2:
-        with pytest.raises(InvalidBlockPosition):
-            block.rotate_ccw()
-        assert str(field) == exp_field
-
-        with pytest.raises(InvalidBlockPosition):
-            block.rotate_cw()
-        assert str(field) == exp_field
+    # Block unable to rotate from this position
+    with pytest.raises(InvalidBlockRotation):
+        block.rotate_ccw()
+    assert str(field) == '0,0,0,0;0,0,0,0;0,0,1,2;0,0,1,2;0,0,1,2;0,0,1,2'
 
 
 def test_drop():
@@ -112,3 +104,13 @@ def test_drop():
 
     with pytest.raises(CannotMoveBlock):
         oblock1.rotate_ccw()
+
+
+def test_ending_game_with_drop():
+    field = Field.from_str('0,0,0,0;3,3,3,3')
+
+    oblock = OBlock(field)
+    oblock.position = 1, -1
+
+    with pytest.raises(GameOver):
+        oblock.drop()

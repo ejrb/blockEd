@@ -31,7 +31,8 @@ def test_settings_reporter():
 
 
 def test_game_engine_initial_game():
-    blocks = [OBlock(None), IBlock(None)]
+    f = Field(4, 4)
+    blocks = [OBlock(f), IBlock(f)]
     mock_block_source = iter(blocks)
     engine = Engine(block_source=mock_block_source)
     assert dict(engine.game) == {
@@ -41,7 +42,8 @@ def test_game_engine_initial_game():
 
 
 def test_update_reporter_initial():
-    mock_block_source = iter([OBlock(None), IBlock(None)])
+    f = Field(4, 4)
+    mock_block_source = iter([OBlock(f), IBlock(f)])
     engine = Engine(block_source=mock_block_source)
     buf = StringIO()
     updater = UpdateReporter(engine)
