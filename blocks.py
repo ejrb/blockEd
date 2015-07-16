@@ -17,7 +17,7 @@ class CannotMoveBlock(BlockException):
 def movement(meth):
     @functools.wraps(meth)
     def do_move_if_possible(block, *args, **kwargs):
-        if block.can_be_moved():
+        if block.movable:
             return meth(block, *args, **kwargs)
         else:
             raise CannotMoveBlock()
@@ -63,9 +63,16 @@ class Block(object):
     def _is_floating(self):
         return self._position == (None, None)
 
-    def can_be_moved(self):
-        """Is the block still movable or has it come to rest somewhere?"""
+    @property
+    def movable(self):
         return self._movable
+
+    @movable.setter
+    def movable(self, value):
+        if value is False:
+            x, y = self._position
+            self._update_field(x, y, 2)
+            self._movable = value
 
     @property
     def position(self):
@@ -116,7 +123,7 @@ class Block(object):
             if not self._can_place(x, y + i):
                 self.position = x, y + i - 1
                 break
-        self._movable = False
+        self.movable = False
         return self
 
 

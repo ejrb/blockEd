@@ -93,20 +93,19 @@ def test_drop():
     # Drop first O into bottom right corner
     oblock1.position = 0, 0
     oblock1.drop()
-    assert str(field) == '0,0,0,0;0,0,0,0;0,0,0,0;0,0,0,0;1,1,0,0;1,1,0,0'
+    assert str(field) == '0,0,0,0;0,0,0,0;0,0,0,0;0,0,0,0;2,2,0,0;2,2,0,0'
 
     # Move second O next to it and drop it (stays in place)
     oblock2.position = 2, 4
-    exp_str = '0,0,0,0;0,0,0,0;0,0,0,0;0,0,0,0;1,1,1,1;1,1,1,1'
-    assert str(field) == exp_str
+    assert str(field) == '0,0,0,0;0,0,0,0;0,0,0,0;0,0,0,0;2,2,1,1;2,2,1,1'
     oblock2.drop()
-    assert str(field) == exp_str
+    assert str(field) == '0,0,0,0;0,0,0,0;0,0,0,0;0,0,0,0;2,2,2,2;2,2,2,2'
 
     # Drop I on top of O
     iblock.position = 0, -1
     iblock.drop()
 
-    assert str(field) == '0,0,0,0;0,0,0,0;0,0,0,0;1,1,1,1;1,1,1,1;1,1,1,1'
+    assert str(field) == '0,0,0,0;0,0,0,0;0,0,0,0;2,2,2,2;2,2,2,2;2,2,2,2'
 
     with pytest.raises(CannotMoveBlock):
         oblock1.position = 0, 0
