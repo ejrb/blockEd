@@ -29,14 +29,28 @@ class SettingsReporter(Reporter):
             output.write('settings {}\n'.format(_report_repr(k, v)))
 
 
-class UpdateReporter(Reporter):
+class GameReporter(Reporter):
     def __init__(self, engine):
-        super(UpdateReporter, self).__init__()
+        super(GameReporter, self).__init__()
         self._engine = engine
 
     def report_to(self, output):
         for k, v in self._engine.game.iteritems():
             output.write('update game {}\n'.format(_report_repr(k, v)))
+
+
+class PlayerReporter(Reporter):
+    def __init__(self, name, field, score_keeper):
+        self._name = name
+        self._field = field
+        self._score_keeper = score_keeper
+
+    def report_to(self, output):
+        template = 'update {name} {{k}}{{v}}\n'.format(name=self._name)
+        for k, v in (('row_points ', self._score_keeper.score),
+                     ('combo ', self._score_keeper.combo),
+                     ('field\n', self._field)):
+            output.write(template.format(k=k, v=v))
 
 
 class Engine(object):

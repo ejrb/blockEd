@@ -1,9 +1,11 @@
 from cStringIO import StringIO
 from collections import OrderedDict
 
-from blocked.engine import SettingsReporter, UpdateReporter, Engine
+from blocked.engine import SettingsReporter, GameReporter, Engine, \
+    PlayerReporter
 from blocked.blocks import OBlock, IBlock
 from blocked.field import Field
+from blocked.score import ScoreKeeper
 
 _test_settings = OrderedDict([
     ('time_bank', 1),
@@ -16,11 +18,8 @@ _test_settings = OrderedDict([
 
 
 def test_settings_reporter():
-    buf = StringIO()
-    settings_reporter = SettingsReporter(_test_settings)
-    settings_reporter.report_to(buf)
-    buf.seek(0)
-    assert buf.read() == (
+    reporter = SettingsReporter(_test_settings)
+    assert _read_report(reporter) == (
         'settings time_bank 1\n'
         'settings time_per_move 2\n'
         'settings player_names p1,p2\n'
@@ -41,17 +40,36 @@ def test_game_engine_initial_game():
     }
 
 
-def test_update_reporter_initial():
+def _read_report(reporter):
+    buf = StringIO()
+    reporter.report_to(buf)
+    buf.seek(0)
+    return buf.read()
+
+
+def test_game_reporter_initial():
     f = Field(4, 4)
     mock_block_source = iter([OBlock(f), IBlock(f)])
     engine = Engine(block_source=mock_block_source)
-    buf = StringIO()
-    updater = UpdateReporter(engine)
-    updater.report_to(buf)
-    buf.seek(0)
-    assert buf.read() == (
+    reporter = GameReporter(engine)
+    assert _read_report(reporter) == (
         'update game round 1\n'
         'update game this_piece_type O\n'
         'update game next_piece_type I\n'
         'update game this_piece_position 4,-1\n'
+    )
+
+
+def test_player_reporter():
+    """reporting player status"""
+    sk = ScoreKeeper(15, 2)
+    f = Field.from_str('0,0,0,0;0,0,2,2;0,2,2,2;3,3,3,3')
+
+    reporter = PlayerReporter('first_player', f, sk)
+
+    assert _read_report(reporter) == (
+        'update first_player row_points 15\n'
+        'update first_player combo 2\n'
+        'update first_player field\n'
+        '0,0,0,0;0,0,2,2;0,2,2,2;3,3,3,3\n'
     )

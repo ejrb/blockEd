@@ -1,7 +1,7 @@
 class ScoreKeeper(object):
-    def __init__(self):
-        self.score = 0
-        self.combo = 0
+    def __init__(self, score=0, combo=0):
+        self.score = score
+        self.combo = combo
 
     def rows_removed(self, rows):
         if rows:
