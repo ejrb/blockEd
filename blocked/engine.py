@@ -1,7 +1,7 @@
 from collections import OrderedDict
-from blocked.blocks import default_block_source
-from blocked.exceptions import GameOver
 
+from .blocks import default_block_source
+from .exceptions import GameOver, FirstPlayerWin, SecondPlayerWin, Tie
 
 _DEFAULT_SETTINGS = OrderedDict([
     ('time_bank', 10000),
@@ -77,18 +77,6 @@ class GameState(object):
     def next_round(self):
         self.round += 1
         self.current_block, self.next_block = self.next_block, self._new_block()
-
-
-class FirstPlayerWin(GameOver):
-    pass
-
-
-class SecondPlayerWin(GameOver):
-    pass
-
-
-class Tie(GameOver):
-    pass
 
 
 class Engine(Reporter):

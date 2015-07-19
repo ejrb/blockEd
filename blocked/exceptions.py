@@ -2,10 +2,6 @@ class BlockEdException(Exception):
     """base exception for blockEd"""
 
 
-class GameOver(BlockEdException):
-    pass
-
-
 class BlockException(BlockEdException):
     """block problems"""
 
@@ -20,3 +16,19 @@ class InvalidBlockRotation(BlockException):
 
 class CannotMoveBlock(BlockException):
     """cannot move block"""
+
+
+class GameOver(BlockEdException):
+    pass
+
+
+class FirstPlayerWin(GameOver):
+    """game ends with p1 victory"""
+
+
+class SecondPlayerWin(GameOver):
+    """game ends with p2 victory"""
+
+
+class Tie(GameOver):
+    """game ends in a tie"""
