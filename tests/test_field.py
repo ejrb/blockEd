@@ -2,6 +2,7 @@ import pytest
 
 from blocked.exceptions import GameOver
 from blocked.field import Field
+from blocked.score import ScoreKeeper
 
 
 def test_field_str_repr():
@@ -18,28 +19,40 @@ def test_from_str():
 
 def test_row_completion():
     """update should delete any full rows and return the number removed"""
-    field = Field.from_str('0,0;0,0')
-    assert field.update() == 0
+    score_keeper = ScoreKeeper()
+    field = Field.from_str('0,0;0,0', score_keeper)
+    field.update_game_state()
+    assert score_keeper.score == 0
+    assert score_keeper.combo == 0
     assert str(field) == '0,0;0,0'
 
-    field = Field.from_str('0,0,0;0,2,0;2,2,2')
-    assert field.update() == 1
+    field = Field.from_str('0,0,0;0,2,0;2,2,2', score_keeper)
+    field.update_game_state()
+    assert score_keeper.score == 1
+    assert score_keeper.combo == 1
     assert str(field) == '0,0,0;0,0,0;0,2,0'
 
-    field = Field.from_str('0,0,0,0,0;2,2,2,2,2;2,0,2,2,2;2,2,2,2,2;0,0,0,2,0')
-    assert field.update() == 2
+    field = Field.from_str('0,0,0,0,0;2,2,2,2,2;2,0,2,2,2;2,2,2,2,2;0,0,0,2,0',
+                           score_keeper)
+    field.update_game_state()
+    assert score_keeper.score == 4
+    assert score_keeper.combo == 2
     assert str(field) == '0,0,0,0,0;0,0,0,0,0;0,0,0,0,0;2,0,2,2,2;0,0,0,2,0'
 
 
 def test_raising():
     """raising the base should add a solid row (3s) which cannot be removed.
     if blocks are pushed above the upper bound, the game ends """
-    field = Field.from_str('0,0,0,0;0,0,2,2;2,2,2,0')
+    score_keeper = ScoreKeeper()
+    field = Field.from_str('0,0,0,0;0,0,2,2;2,2,2,0', score_keeper)
 
     field.raise_base()
     assert str(field) == '0,0,2,2;2,2,2,0;3,3,3,3'
-    assert field.update() == 0
+    field.update_game_state()
     assert str(field) == '0,0,2,2;2,2,2,0;3,3,3,3'
 
     with pytest.raises(GameOver):
         field.raise_base()
+
+    assert score_keeper.score == 0
+    assert score_keeper.combo == 0

@@ -69,9 +69,10 @@ class SolidRow(Row):
 
 
 class Field(object):
-    def __init__(self, height, width):
+    def __init__(self, height, width, score_keeper=None):
         self.h, self.w = height, width
         self._field = [Row(width) for _ in xrange(height)]
+        self._score_keeper = score_keeper
 
     def __str__(self):
         return ';'.join(map(str, self._field))
@@ -83,7 +84,7 @@ class Field(object):
             return OutOfBoundsBottomRow(self.w)
         return self._field[item]
 
-    def update(self):
+    def update_game_state(self):
         to_remove = [
             i for i, row in enumerate(self._field) if row.is_complete()
         ]
@@ -94,7 +95,8 @@ class Field(object):
         for _ in to_remove:
             self._field.insert(0, Row(self.w))
 
-        return len(to_remove)
+        if self._score_keeper is not None:
+            self._score_keeper.rows_removed(len(to_remove))
 
     def raise_base(self):
         if self._field[0].is_empty():
@@ -104,9 +106,9 @@ class Field(object):
             raise GameOver('Raising base has ended the game: {}'.format(self))
 
     @classmethod
-    def from_str(cls, s):
+    def from_str(cls, s, score_keeper=None):
         array = [map(int, r.split(',')) for r in s.split(';')]
-        field = cls(len(array), len(array[0]))
+        field = cls(len(array), len(array[0]), score_keeper=score_keeper)
         for j, row in enumerate(array):
             for i, v in enumerate(row):
                 field[j][i] = v
