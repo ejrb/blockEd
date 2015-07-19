@@ -1,15 +1,16 @@
 import functools
 import itertools
+import random
 
-from .exceptions import InvalidBlockPosition, CannotMoveBlock, GameOver, \
+from .exceptions import InvalidBlockPosition, CannotMoveBlock, \
     InvalidBlockRotation
 
 
-def movement(meth):
-    @functools.wraps(meth)
+def movement(move_method):
+    @functools.wraps(move_method)
     def do_move_if_possible(block, *args, **kwargs):
         if block.movable:
-            return meth(block, *args, **kwargs)
+            return move_method(block, *args, **kwargs)
         else:
             raise CannotMoveBlock()
     return do_move_if_possible
@@ -154,3 +155,10 @@ BLOCKS = {
 }
 rotate_ccw = lambda m: tuple(map(tuple, reversed(zip(*m))))
 rotate_cw = lambda m: tuple(map(tuple, zip(*reversed(m))))
+
+
+def default_block_source():
+    blocks = BLOCKS.values()
+    choice = lambda: random.randint(0, len(blocks) - 1)
+    while True:
+        yield blocks[choice()]

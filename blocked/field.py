@@ -1,3 +1,4 @@
+from .score import ScoreKeeper
 from .exceptions import GameOver
 
 
@@ -72,7 +73,7 @@ class Field(object):
     def __init__(self, height, width, score_keeper=None):
         self.h, self.w = height, width
         self._field = [Row(width) for _ in xrange(height)]
-        self._score_keeper = score_keeper
+        self._score_keeper = score_keeper or ScoreKeeper()
 
     def __str__(self):
         return ';'.join(map(str, self._field))
@@ -84,19 +85,19 @@ class Field(object):
             return OutOfBoundsBottomRow(self.w)
         return self._field[item]
 
-    def update_game_state(self):
-        to_remove = [
+    def remove_completed_rows(self):
+        completed = [
             i for i, row in enumerate(self._field) if row.is_complete()
         ]
 
-        for i in reversed(to_remove):
+        for i in reversed(completed):
             del self._field[i]
 
-        for _ in to_remove:
+        for _ in completed:
             self._field.insert(0, Row(self.w))
 
         if self._score_keeper is not None:
-            self._score_keeper.rows_removed(len(to_remove))
+            self._score_keeper.rows_removed(len(completed))
 
     def raise_base(self):
         if self._field[0].is_empty():
@@ -108,8 +109,20 @@ class Field(object):
     @classmethod
     def from_str(cls, s, score_keeper=None):
         array = [map(int, r.split(',')) for r in s.split(';')]
-        field = cls(len(array), len(array[0]), score_keeper=score_keeper)
-        for j, row in enumerate(array):
-            for i, v in enumerate(row):
-                field[j][i] = v
+        h, w = len(array), len(array[0])
+        field = cls(h, w, score_keeper=score_keeper)
+        for j, row in enumerate(array[::-1]):
+            if row == [3] * w:
+                field.raise_base()
+            else:
+                for i, v in enumerate(row):
+                    field[h - j - 1][i] = v
         return field
+
+    @property
+    def score(self):
+        return self._score_keeper.score
+
+    @property
+    def combo(self):
+        return self._score_keeper.combo
