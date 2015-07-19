@@ -4,6 +4,12 @@ from blocked.exceptions import GameOver
 from blocked.field import Field
 
 
+def test_field_str_repr():
+    """required string repr for outputting"""
+    field = Field(6, 3)
+    assert str(field) == '0,0,0;0,0,0;0,0,0;0,0,0;0,0,0;0,0,0'
+
+
 def test_from_str():
     """instantiate a field from its string representation"""
     assert str(Field.from_str('0,0;0,0')) == '0,0;0,0'

@@ -55,8 +55,3 @@ def test_update_reporter_initial():
         'update game next_piece_type I\n'
         'update game this_piece_position 4,-1\n'
     )
-
-
-def test_field_str_repr():
-    field = Field(6, 3)
-    assert str(field) == '0,0,0;0,0,0;0,0,0;0,0,0;0,0,0;0,0,0'
